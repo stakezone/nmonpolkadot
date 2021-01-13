@@ -1,0 +1,822 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2020-12-27T07:39:10Z</date>
+    <groups>
+        <group>
+            <name>Templates/Applications</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template App Solana Validator</template>
+            <name>Template App Solana Validator</name>
+            <description>Solana Validator Node</description>
+            <groups>
+                <group>
+                    <name>Templates/Applications</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Solana Validator</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>activatedStake</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;activatedStake=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{change()}&lt;&gt;0</expression>
+                            <recovery_mode>NONE</recovery_mode>
+                            <name>{$NMSNODEID} : activated stake : change : new={ITEM.VALUE}</name>
+                            <status>DISABLED</status>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>avgSlotTime</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;avgSlotTime=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>nodemonitor elapsed</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;elapsed=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;{$NMSTLASTBLOCKELAPSED}</expression>
+                            <name>{$NMSNODEID} : elapsed &gt; {$NMSTLASTBLOCKELAPSED} : T={ITEM.VALUE}</name>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>height</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;height=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>leaderSlots</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>nodes</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;nodes=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>nodemonitor pctNewerVersions</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;pctNewerVersions=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;30</expression>
+                            <name>{$NMSNODEID} : %NewerVersions &gt; 30 : pct={ITEM.VALUE}</name>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&gt;5 and {last()}&lt;=30</expression>
+                            <name>{$NMSNODEID} : 5 &lt; %NewerVersions &lt;= 30 : pct={ITEM.VALUE}</name>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>nodemonitor pctSkipped</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;pctSkipped=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>nodemonitor pctSkippedDelta</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>nodemonitor pctTotDelinquent</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;pctTotDelinquent=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;15</expression>
+                            <name>{$NMSNODEID} : %TotDelinquent &gt; 15 : pct={ITEM.VALUE}</name>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&gt;5 and {last()}&lt;=15</expression>
+                            <name>{$NMSNODEID} : 5 &lt; %TotDelinquent &lt;= 15 : pct={ITEM.VALUE}</name>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>nodemonitor pctTotSkipped</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;pctTotSkipped=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>nodemonitor status</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMSLOGFILE},&quot;status=(\w*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMSUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <description>scriptstarted | error | up | active | delinquent&#13;
+&#13;
+error can have various causes, typically the solana-validator process is down.</description>
+                    <applications>
+                        <application>
+                            <name>Solana Validator</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{nodata({$NMSNODATA})}=1</expression>
+                            <name>{$NMSNODEID} : no log data : T &gt; {$NMSNODATA}</name>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{iregexp(delinquent,#1)}=1</expression>
+                            <name>{$NMSNODEID} : status : delinquent</name>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{iregexp(error,#1)}=1</expression>
+                            <name>{$NMSNODEID} : status : error</name>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{iregexp(scriptstarted,#1)}=1</expression>
+                            <name>{$NMSNODEID} : status : script started</name>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$NMSLOGFILE}</macro>
+                    <description>Location of the nodemonitor log file on the host, example: /home/user/nodemonitor-user.log</description>
+                </macro>
+                <macro>
+                    <macro>{$NMSNODATA}</macro>
+                    <value>120</value>
+                    <description>Time is seconds for no data received trigger</description>
+                </macro>
+                <macro>
+                    <macro>{$NMSNODEID}</macro>
+                    <value>Solana</value>
+                    <description>Identifier for the node on the server (useful if more than one are hosted).</description>
+                </macro>
+                <macro>
+                    <macro>{$NMSTHRSHLDLEADERSLOTS}</macro>
+                    <value>50</value>
+                    <description>Default threshold value for min #leaderSlots activating pctSkipped trigger</description>
+                </macro>
+                <macro>
+                    <macro>{$NMSTLASTBLOCKELAPSED}</macro>
+                    <value>300</value>
+                    <description>Time in seconds from the blockheight in the logfile that triggers a warning (chain halt detection).</description>
+                </macro>
+                <macro>
+                    <macro>{$NMSUPDATEINTERVAL}</macro>
+                    <value>1s</value>
+                    <description>update interval for items</description>
+                </macro>
+            </macros>
+            <screens>
+                <screen>
+                    <name>Solana Metrics</name>
+                    <hsize>2</hsize>
+                    <vsize>4</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Skipped</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Skipped Delta</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Total Delinquent</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Newer Versions</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Average Slot Time</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Time Elapsed</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Activated Stake</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Nodes</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+                <screen>
+                    <name>Solana Metrics Mobile</name>
+                    <hsize>1</hsize>
+                    <vsize>8</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Skipped</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Skipped Delta</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Total Delinquent</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>% Newer Versions</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Activated Stake</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>4</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Nodes</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>5</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Average Slot Time</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>6</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Time Elapsed</name>
+                                <host>Template App Solana Validator</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>7</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+            </screens>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>{Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkipped=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;=20 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;{$NMSTHRSHLDLEADERSLOTS} and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;{$NMSTHRSHLDLEADERSLOTS}</expression>
+            <name>{$NMSNODEID} : %skipped &gt;= 20  for leaderSlots &gt; {$NMSTHRSHLDLEADERSLOTS} : pct={ITEM.VALUE}</name>
+            <priority>WARNING</priority>
+            <manual_close>YES</manual_close>
+        </trigger>
+        <trigger>
+            <expression>{Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;=50 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;{$NMSTHRSHLDLEADERSLOTS}</expression>
+            <name>{$NMSNODEID} : %skippedDelta &gt;= 50 for leaderSlots &gt; {$NMSTHRSHLDLEADERSLOTS} : pct={ITEM.VALUE}</name>
+            <priority>WARNING</priority>
+            <manual_close>YES</manual_close>
+        </trigger>
+        <trigger>
+            <expression>{Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;5 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&lt;=10 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;{$NMSTHRSHLDLEADERSLOTS}</expression>
+            <name>{$NMSNODEID} : 5 &lt; %skippedDelta &lt;= 10 for leaderSlots &gt; {$NMSTHRSHLDLEADERSLOTS} : pct={ITEM.VALUE}</name>
+            <priority>INFO</priority>
+            <manual_close>YES</manual_close>
+        </trigger>
+        <trigger>
+            <expression>{Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;10 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&lt;=50 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;{$NMSTHRSHLDLEADERSLOTS}</expression>
+            <name>{$NMSNODEID} : 10 &lt; %skippedDelta &lt;= 50 for leaderSlots &gt; {$NMSTHRSHLDLEADERSLOTS} : pct={ITEM.VALUE}</name>
+            <priority>INFO</priority>
+            <manual_close>YES</manual_close>
+        </trigger>
+        <trigger>
+            <expression>{Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkipped=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;=10 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;pctSkipped=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&lt;20 and {Template App Solana Validator:logrt[{$NMSLOGFILE},&quot;leaderSlots=([0-9\.\-]*)&quot;,,,skip,\1,].last()}&gt;{$NMSTHRSHLDLEADERSLOTS}</expression>
+            <name>{$NMSNODEID} : 10 &lt;= %skipped &lt; 20  for leaderSlots &gt; {$NMSTHRSHLDLEADERSLOTS} : pct={ITEM.VALUE}</name>
+            <priority>INFO</priority>
+            <manual_close>YES</manual_close>
+        </trigger>
+    </triggers>
+    <graphs>
+        <graph>
+            <name>% Newer Versions</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;pctNewerVersions=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>% Skipped</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;pctSkipped=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F63100</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;pctTotSkipped=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>% Skipped Delta</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;pctSkippedDelta=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>% Total Delinquent</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;pctTotDelinquent=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Activated Stake</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;activatedStake=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Average Slot Time</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;avgSlotTime=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Nodes</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;nodes=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Time Elapsed</name>
+            <type>STACKED</type>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Solana Validator</host>
+                        <key>logrt[{$NMSLOGFILE},&quot;elapsed=([0-9\.\-]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
+
