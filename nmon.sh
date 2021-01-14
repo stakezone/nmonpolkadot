@@ -7,18 +7,18 @@
 #####    sudo apt update && sudo apt -y install nodejs
 #####    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 #####    sudo apt update && sudo apt install yarn
-#####    sudo npm install --save @polkadot/api
+#####    sudo yarn global add @polkadot/api-cli
 
 #####    CONFIG    ##################################################################################################
 validatoraddress=""       # if left empty no validator checks are performed (simple node)
-socket="ws://127.0.0.1:9944" # websocket to node for js-api, if empty default
+socket="ws://127.0.0.1:9944" # websocket for js-api, if empty default
 cli="timeout --kill-after=6 5 polkadot-js-api --ws $socket" # js api command, using timeout for preventing deadlocks of the script
 heartbeatiptest="on"      # if set to on the local ip is matched with the received heartbeat data (confirms the local node)
 heartbeatoffset="10"      # the block interval following the expected heartbeat height after that a heartbeat must be received
-logname=""                # a custom log file name can be chosen, if left empty default is nodecheck-<username>.log
+logname=""                # a custom log file name can be chosen, if left empty default is nmon-<username>.log
 logpath="$(pwd)"          # the directory where the log file is stored, for customization insert path like: /my/path
 logsize=200               # the max number of lines after that the log will be trimmed to reduce its size
-sleep1=1s                 # polls every sleep1 sec
+sleep1=30s                # polls every sleep1 sec
 colorI='\033[0;32m'       # black 30, red 31, green 32, yellow 33, blue 34, magenta 35, cyan 36, white 37
 colorD='\033[0;90m'       # for light color 9 instead of 3
 colorE='\033[0;31m'       #
