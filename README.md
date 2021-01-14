@@ -23,11 +23,11 @@ The log line entries that are imported by the server are:
 * **behind** difference between highest and current height
 * **peers** number of peers
 * **session** the current session 
-* **authoredBlocks** authored blocks from the configured validator address for the current session
-* **heartbeat** can be {waiting | ok | missing | missing_ip} 'waiting' if heartbeat-after-hight is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-hight, 'missing' heartbeat was not sent, 'missing_ip' heartbeat message does not contain the ip of the local node (useful for confirming local node)
+* **authoredBlocks** (only if validator address is configured) authored blocks from the configured validator address for the current session
+* **heartbeat** (only if validator address is configured) can be {waiting | ok | missing | missing_ip} 'waiting' if heartbeat-after-hight is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-hight, 'missing' heartbeat was not sent, 'missing_ip' heartbeat message does not contain the ip of the local node (useful for confirming local node)
 
 ### Installation
 
-The script for the host has a configuration section on top where parameters can be set. There is also information for the required dependencies and how to install the required JS-API.
+The script for the host has a configuration section on top where parameters can be set. There is also information for the required dependencies and how to install the JS-API.
 
 A Zabbix server is required that connects to the host running the Solana validator. On the host side the Zabbix agent needs to be installed and configured for active mode. There is various information on the Zabbix site and from other sources that explains how to connect a host to the server and utilize the standard Linux OS templates for general monitoring. Once these steps are completed the Solana Validator template file can be imported. Under `All templates/Template App Polkadot` there is a `Macros` section with several parameters that can be configured, in particular the path to the log file must be set. Do not change those values there, instead go to `Hosts` and select the particular host, then go to `Macros`, then to `Inherited and host macros`. There the macros from the generic template are mirrored for the specific host and can be set without affecting other hosts using the same template.
