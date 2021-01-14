@@ -24,7 +24,7 @@ The log line entries that are imported by the server are:
 * **peers** number of peers
 * **session** the current session 
 * **authoredBlocks** (only if validator address is configured) authored blocks from the configured validator address for the current session
-* **heartbeat** (only if validator address is configured) can be {waiting | ok | missing | missing_ip} 'waiting' if heartbeat-after-hight is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-hight, 'missing' heartbeat was not sent, 'missing_ip' heartbeat message does not contain the ip of the local node (useful for confirming local node)
+* **heartbeat** (only if validator address is configured) can be {waiting | ok | missing | missing_ip} 'waiting' if heartbeat-after-height is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-height, 'missing' heartbeat was not sent, 'missing_ip' heartbeat message does not contain the ip of the local node (useful for confirming local node)
 
 ### Installation
 
