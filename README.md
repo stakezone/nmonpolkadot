@@ -20,7 +20,7 @@ The log line entries that are imported by the server are:
 * **status** can be {scriptstarted | synced | catchingup | error} 'error' can have various causes, typically the `polkadot` process is down.
 * **height** current height
 * **elapsed** time in seconds since current height (useful for latency or chain halt detection)
-* **behind** difference between highest and current hight
+* **behind** difference between highest and current height
 * **peers** number of peers
 * **session** the current session 
 * **authoredBlocks** authored blocks from the configured validator address for the current session
