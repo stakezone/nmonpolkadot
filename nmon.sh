@@ -10,7 +10,7 @@
 #####    sudo yarn global add @polkadot/api-cli
 
 #####    CONFIG    ##################################################################################################
-validatoraddress=""       # if left empty no validator checks are performed (simple node)
+validatoraddress=""       # if left empty no validator checks are performed
 socket="ws://127.0.0.1:9944" # websocket for js-api, if empty default
 cli="timeout --kill-after=6 5 polkadot-js-api --ws $socket" # js api command, using timeout for preventing deadlocks of the script
 heartbeatiptest="on"      # if set to on the local ip is matched with the received heartbeat data (confirms the local node)
@@ -45,7 +45,7 @@ touch $logfile
 
 echo "log file: ${logfile}"
 echo "js-api version: ${apiversion}"
-echo "polkadot version: ${specVersion}"
+echo "runtime version: ${specVersion}"
 echo "websocket: ${socket}"
 echo "validator address: ${validatoraddress}"
 echo "listen addresses: ${localListenAddresses}"
