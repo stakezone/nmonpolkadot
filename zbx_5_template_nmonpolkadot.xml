@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-01-14T18:15:41Z</date>
+    <date>2021-01-14T18:20:32Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -76,7 +76,7 @@ after heartbeat hight for session either ok, missing or missing_ip (ip does not 
                     <triggers>
                         <trigger>
                             <expression>{last()}&gt;{$NMPOLKAELAPSED}</expression>
-                            <name>{$NMPOLKANODEID} elapsed &gt; {$NMPOLKATLASTBLOCKFROMNOW} : T={ITEM.VALUE}</name>
+                            <name>{$NMPOLKANODEID} elapsed &gt; {$NMPOLKAELAPSED} : T={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
