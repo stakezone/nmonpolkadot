@@ -90,7 +90,7 @@ while true; do
          sessionIndex=$($cli query.session.currentIndex | jq -r '.currentIndex')
          sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
          #sessionIndex_=$sessionIndex
-         pctSessionElapsed=$(echo "scale=2 ; 100 * ($highestBlock - ($sessionIndex * 1200)) / 1200" | bc)
+         #pctSessionElapsed=$(echo "scale=2 ; 100 * ($highestBlock - ($sessionIndex * 1200)) / 1200" | bc)
          authoredBlocks=$($cli query.imOnline.authoredBlocks $sessionIndex $validatoraddress | jq -r '.authoredBlocks')
          #keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$(polkadot-js-api query.imOnline.keys | jq -r 'map({key: .[]})'))
          keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$($cli query.session.validators | jq -r 'map({key: .[]})'))
@@ -155,7 +155,7 @@ while true; do
    esac
    case $heartbeat in
    missing | missing_ip)
-      color=$colorW
+      color=$colorE
       ;;
    esac
    
