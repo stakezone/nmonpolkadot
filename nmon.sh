@@ -29,7 +29,7 @@ noColor='\033[0m'         # no color
 apiversion=$($cli --version)
 if [ -z $apiversion ]; then
    echo "please install the Polkadot JS-API"
-   break
+   exit 1
 fi
 
 myip=$(curl -s4 checkip.amazonaws.com)
@@ -84,7 +84,7 @@ while true; do
       highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
       highestBlock=$(sed 's/,//g' <<<$highestBlock)
       behind=$(expr $highestBlock - $height)
-       now=$(date --rfc-3339=seconds)
+      now=$(date --rfc-3339=seconds)
       elapsed=$(expr $(date +%s -d "$now") - $heightfromnow)
       if [ -n "$validatoraddress" ]; then
          sessionIndex=$($cli query.session.currentIndex | jq -r '.currentIndex')
