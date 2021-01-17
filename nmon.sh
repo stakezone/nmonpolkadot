@@ -14,7 +14,7 @@ validatoraddress=""   # if left empty no validator checks are performed
 socket="default"      # websocket for js-api, either 'default' or insert like 'ws://127.0.0.1:9944'
 cli="polkadot-js-api" # js-api command
 nodeip="auto"         # nodeip of the node for verifying heartbeat message, set to 'auto' autodiscovered for local ip,'off' for no checks
-heartbeatoffset="8"  # the block interval following the expected heartbeat height after that a heartbeat must be received
+heartbeatoffset="8"   # the block interval following the expected heartbeat height after that a heartbeat must be received
 logname=""            # a custom log file name can be chosen, if left empty default is nmon-<username>.log
 logpath="$(pwd)"      # the directory where the log file is stored, for customization insert path like: /my/path
 logsize=200           # the max number of lines after that the log will be trimmed to reduce its size
@@ -134,7 +134,7 @@ while true; do
             else
                heartbeat="waiting"
             fi
-            logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat era=$currentEra"
+            logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat"
          fi
       fi
       logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind peers=$peers $logentry"
