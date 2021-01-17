@@ -10,21 +10,24 @@
 #####    sudo yarn global add @polkadot/api-cli
 
 #####    CONFIG    ##################################################################################################
-validatoraddress=""       # if left empty no validator checks are performed
-socket="ws://127.0.0.1:9944" # websocket for js-api, if empty default
-cli="timeout --kill-after=6 5 polkadot-js-api --ws $socket" # js api command, using timeout for preventing deadlocks of the script
-heartbeatiptest="on"      # if set to on the local ip is matched with the received heartbeat data (confirms the local node)
-heartbeatoffset="10"      # the block interval following the expected heartbeat height after that a heartbeat must be received
-logname=""                # a custom log file name can be chosen, if left empty default is nmon-<username>.log
-logpath="$(pwd)"          # the directory where the log file is stored, for customization insert path like: /my/path
-logsize=200               # the max number of lines after that the log will be trimmed to reduce its size
-sleep1=30s                # polls every sleep1 sec
-colorI='\033[0;32m'       # black 30, red 31, green 32, yellow 33, blue 34, magenta 35, cyan 36, white 37
-colorD='\033[0;90m'       # for light color 9 instead of 3
-colorE='\033[0;31m'       #
-colorW='\033[0;33m'       #
-noColor='\033[0m'         # no color
+validatoraddress=""   # if left empty no validator checks are performed
+socket="default"      # websocket for js-api, either 'default' or insert like 'ws://127.0.0.1:9944'
+cli="polkadot-js-api" # js-api command
+nodeip="auto"         # nodeip of the node for verifying heartbeat message, set to 'auto' autodiscovered for local ip,'off' for no checks
+heartbeatoffset="8"  # the block interval following the expected heartbeat height after that a heartbeat must be received
+logname=""            # a custom log file name can be chosen, if left empty default is nmon-<username>.log
+logpath="$(pwd)"      # the directory where the log file is stored, for customization insert path like: /my/path
+logsize=200           # the max number of lines after that the log will be trimmed to reduce its size
+sleep1=30s            # polls every sleep1 sec
+colorI='\033[0;32m'   # black 30, red 31, green 32, yellow 33, blue 34, magenta 35, cyan 36, white 37
+colorD='\033[0;90m'   # for light color 9 instead of 3
+colorE='\033[0;31m'   #
+colorW='\033[0;33m'   #
+noColor='\033[0m'     # no color
 #####  END CONFIG  ##################################################################################################
+
+cli="timeout --kill-after=6 5 $cli" #using timeout for preventing deadlocks of the script
+if [ "$socket" != "default" ]; then cli="$cli --ws $socket"; fi
 
 apiversion=$($cli --version)
 if [ -z $apiversion ]; then
@@ -32,7 +35,7 @@ if [ -z $apiversion ]; then
    exit 1
 fi
 
-myip=$(curl -s4 checkip.amazonaws.com)
+if [ "$nodeip" == "auto" ]; then myip=$(curl -s4 checkip.amazonaws.com); fi
 
 chainid=$($cli rpc.system.chain | jq -r '.chain')
 specVersion=$($cli query.system.lastRuntimeUpgrade | jq -r '.lastRuntimeUpgrade.specVersion')
@@ -57,7 +60,7 @@ nloglines=$(wc -l <$logfile)
 if [ $nloglines -gt $logsize ]; then sed -i "1,$(expr $nloglines - $logsize)d" $logfile; fi # the log file is trimmed for logsize
 
 date=$(date --rfc-3339=seconds)
-echo "$date status=scriptstarted chainid=$chainid" >>$logfile
+echo "[${date}] status=scriptstarted chainid=$chainid" >>$logfile
 
 while true; do
    logentry=""
@@ -89,37 +92,50 @@ while true; do
       if [ -n "$validatoraddress" ]; then
          sessionIndex=$($cli query.session.currentIndex | jq -r '.currentIndex')
          sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
+         #currentEra=$($cli query.staking.currentEra | jq -r '.currentEra')
+         #currentEra=$(sed 's/,//g' <<<$currentEra)
+         #currentEra=$($cli query.staking.currentEra | jq -r '.currentEra')
+         #currentEra=$(sed 's/,//g' <<<$currentEra)
+         #erasStartSessionIndex=$($cli query.staking.erasStartSessionIndex $currentEra | jq -r '.erasStartSessionIndex')
+         #erasStartSessionIndex=$(sed 's/,//g' <<<$erasStartSessionIndex)
          #sessionIndex_=$sessionIndex
          #pctSessionElapsed=$(echo "scale=2 ; 100 * ($highestBlock - ($sessionIndex * 1200)) / 1200" | bc)
-         authoredBlocks=$($cli query.imOnline.authoredBlocks $sessionIndex $validatoraddress | jq -r '.authoredBlocks')
          #keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$(polkadot-js-api query.imOnline.keys | jq -r 'map({key: .[]})'))
          keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$($cli query.session.validators | jq -r 'map({key: .[]})'))
-         validatorKey=$(jq -r '.[] | select(.key == '\"$validatoraddress\"')' <<<$keys)
-         validatorIndex=$(jq -r '.index' <<<$validatorKey)
-         heartbeatAfter_=$($cli query.imOnline.heartbeatAfter)
-         if [ -n "$heartbeatAfter_" ]; then
-            heartbeatAfter=$(jq -r '.heartbeatAfter' <<<$heartbeatAfter_)
-            heartbeatAfter=$(sed 's/,//g' <<<$heartbeatAfter)
-         fi
-         heartbeatDelta=$(expr $highestBlock - $heartbeatAfter)
-         if [ "$heartbeatDelta" -gt "$heartbeatoffset" ]; then
-            heartbeat=missing
-            receivedHeartbeats=$($cli query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
-            if [ "$receivedHeartbeats" != "null" ]; then
-               heartbeat=ok
-               receivedHeartbeats="$(echo $receivedHeartbeats | xxd -r -p | tr -d '\0')"
-            fi
-            if [ "$heartbeatiptest" == "on" ]; then
-               test=$(grep -c $myip <<<$receivedHeartbeats)
-               if [ "$test" == "0" ]; then heartbeat=missing_ip; fi
-            fi
-            if [ "$authoredBlocks" -gt "0" ]; then
-               heartbeat=ok
-            fi
+         validatorInKeys=$(grep -c $validatoraddress <<<$keys)
+         if [ "$validatorInKeys" == 0 ]; then
+            isValidator="no"
+            logentry="session=$sessionIndex isValidator=$isValidator"
          else
-            heartbeat="waiting"
+            isValidator="yes"
+            validatorKey=$(jq -r '.[] | select(.key == '\"$validatoraddress\"')' <<<$keys)
+            validatorIndex=$(jq -r '.index' <<<$validatorKey)
+            authoredBlocks=$($cli query.imOnline.authoredBlocks $sessionIndex $validatoraddress | jq -r '.authoredBlocks')
+            heartbeatAfter_=$($cli query.imOnline.heartbeatAfter)
+            if [ -n "$heartbeatAfter_" ]; then
+               heartbeatAfter=$(jq -r '.heartbeatAfter' <<<$heartbeatAfter_)
+               heartbeatAfter=$(sed 's/,//g' <<<$heartbeatAfter)
+            fi
+            heartbeatDelta=$(expr $highestBlock - $heartbeatAfter)
+            if [ "$heartbeatDelta" -gt "$heartbeatoffset" ]; then
+               heartbeat=missing
+               receivedHeartbeats=$($cli query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
+               if [ "$receivedHeartbeats" != "null" ]; then
+                  heartbeat=ok
+                  receivedHeartbeats="$(echo $receivedHeartbeats | xxd -r -p | tr -d '\0')"
+               fi
+               if [ "$nodeip" != "off" ]; then
+                  test=$(grep -c $myip <<<$receivedHeartbeats)
+                  if [ "$test" == "0" ]; then heartbeat=missing_ip; fi
+               fi
+               if [ "$authoredBlocks" -gt "0" ]; then
+                  heartbeat=ok
+               fi
+            else
+               heartbeat="waiting"
+            fi
+            logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat era=$currentEra"
          fi
-         logentry="session=$sessionIndex authoredBlocks=$authoredBlocks heartbeat=$heartbeat"
       fi
       logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind peers=$peers $logentry"
       echo "$logentry" >>$logfile
@@ -158,10 +174,9 @@ while true; do
       color=$colorE
       ;;
    esac
-   
+
    logentry="$(sed 's/[^ ]*[\=]/'\\${color}'&'\\${noColor}'/g' <<<$logentry)"
    echo -e $logentry
-   echo -e "${colorD}sleep $sleep1${noColor}"
+   echo -e "${colorD}sleep ${leep1}${noColor}"
    sleep $sleep1
 done
-
