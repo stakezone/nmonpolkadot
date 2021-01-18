@@ -7,13 +7,13 @@ A complete log file based Polkadot validator uptime monitoring solution for Zabb
 nmon.sh generates human-readable logs that look like:
 
 `
-[2021-01-14 17:43:18+00:00] status=synced height=5772376 elapsed=6 behind=0 peers=46 session=9912 authoredBlocks=0 heartbeat=waiting`
+[2021-01-18 07:58:54+00:00] status=synced height=5822773 elapsed=18 behind=1 peers=58 session=9998 isValidator=yes authoredBlocks=1 heartbeat=waiting pctSessionElapsed=51.77 era=1784 pctEraElapsed=41.96`
  
 `
-[2021-01-14 17:44:01+00:00] status=synced height=5772382 elapsed=7 behind=1 peers=46 session=9912 authoredBlocks=1 heartbeat=waiting`
+[2021-01-18 07:59:39+00:00] status=synced height=5822777 elapsed=9 behind=0 peers=59 session=9998 isValidator=yes authoredBlocks=1 heartbeat=waiting pctSessionElapsed=53.02 era=1784 pctEraElapsed=42.17`
  
 `
-[2021-01-14 17:44:43+00:00] status=synced height=5772390 elapsed=7 behind=0 peers=45 session=9912 authoredBlocks=1 heartbeat=ok`
+[2021-01-18 08:00:24+00:00] status=synced height=5822784 elapsed=6 behind=0 peers=55 session=9998 isValidator=yes authoredBlocks=1 heartbeat=ok pctSessionElapsed=54.25 era=1784 pctEraElapsed=42.37`
 
 The log line entries that are imported by the Zabbix server are:
 
@@ -22,7 +22,8 @@ The log line entries that are imported by the Zabbix server are:
 * **elapsed** time in seconds since current height (useful for latency or chain halt detection)
 * **behind** difference between highest and current height
 * **peers** number of peers
-* **session** the current session 
+* **session** the current session
+* **isValidator** (only if validator address is configured) can be {yes | no}
 * **authoredBlocks** (only if validator address is configured) authored blocks from the configured validator address for the current session
 * **heartbeat** (only if validator address is configured) can be {waiting | ok | missing | missing_ip} 'waiting' if heartbeat-after-height is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-height, 'missing' heartbeat was not sent, 'missing_ip' heartbeat message does not contain the ip of the local node (useful for confirming local node)
 
