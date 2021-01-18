@@ -57,6 +57,7 @@ echo "chain id: ${chainid}"
 #echo "next keys: ${nextKeys}"
 
 epochDuration=$($cli consts.babe.epochDuration | jq -r '.epochDuration')
+epochDuration=$(sed 's/,//g' <<<$epochDuration)
 expectedBlockTime=$($cli consts.babe.expectedBlockTime | jq -r '.expectedBlockTime')
 expectedBlockTime=$(expr $(sed 's/,//g' <<<$expectedBlockTime) / 1000)
 sessionsPerEra=$($cli consts.staking.sessionsPerEra | jq -r '.sessionsPerEra')
