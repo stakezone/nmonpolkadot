@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-01-14T18:20:32Z</date>
+    <date>2021-01-18T10:10:45Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -51,8 +51,8 @@
                     </applications>
                     <triggers>
                         <trigger>
-                            <expression>{last()}&gt;=2</expression>
-                            <name>{$NMPOLKANODEID} behind &gt;= 2 : n={ITEM.VALUE}</name>
+                            <expression>{last()}&gt;={$NMPOLKABEHIND}</expression>
+                            <name>{$NMPOLKANODEID} : behind &gt;= {$NMPOLKABEHIND} : n={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -76,7 +76,7 @@ after heartbeat hight for session either ok, missing or missing_ip (ip does not 
                     <triggers>
                         <trigger>
                             <expression>{last()}&gt;{$NMPOLKAELAPSED}</expression>
-                            <name>{$NMPOLKANODEID} elapsed &gt; {$NMPOLKAELAPSED} : T={ITEM.VALUE}</name>
+                            <name>{$NMPOLKANODEID} : elapsed &gt; {$NMPOLKAELAPSED} : T={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -92,7 +92,7 @@ after heartbeat hight for session either ok, missing or missing_ip (ip does not 
                     <value_type>CHAR</value_type>
                     <description>waiting | ok | missing | missing_ip&#13;
 &#13;
-before heartbeat hight waiting, after either ok (can also be from authored block), missing or missing_ip (heartbeat ip does not correspond with local node ip)</description>
+before heartbeat-hight waiting, after heartbeat-hight either ok (can also be from authored block), missing, or missing_ip (heartbeat ip does not correspond with local node ip)</description>
                     <applications>
                         <application>
                             <name>Polkadot</name>
@@ -101,13 +101,13 @@ before heartbeat hight waiting, after either ok (can also be from authored block
                     <triggers>
                         <trigger>
                             <expression>{iregexp(missing,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} heartbeat : missing</name>
+                            <name>{$NMPOLKANODEID} : heartbeat : missing</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
                             <expression>{iregexp(missing_ip,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} heartbeat : missing_ip</name>
+                            <name>{$NMPOLKANODEID} : heartbeat : missing_ip</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -127,6 +127,29 @@ before heartbeat hight waiting, after either ok (can also be from authored block
                     </applications>
                 </item>
                 <item>
+                    <name>nmon isValidator</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMPOLKALOGFILE},&quot;isValidator=(\w*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <description>yes | no</description>
+                    <applications>
+                        <application>
+                            <name>Polkadot</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{iregexp(no,#1)}=1</expression>
+                            <name>{$NMPOLKANODEID} : is validator : no</name>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
                     <name>nmon peers</name>
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;peers=([0-9\.]*)&quot;,,,skip,\1,]</key>
@@ -141,12 +164,12 @@ before heartbeat hight waiting, after either ok (can also be from authored block
                     <triggers>
                         <trigger>
                             <expression>{last(#1)}&lt;= 0.85*{avg(1h,1h)}</expression>
-                            <name>{$NMPOLKANODEID} npeers 15% below 1h avg : n={ITEM.VALUE}</name>
+                            <name>{$NMPOLKANODEID} : peers 15% below 1h avg : n={ITEM.VALUE}</name>
                             <priority>INFO</priority>
                         </trigger>
                         <trigger>
                             <expression>{last()}&lt;={$NMPOLKATHRSHLDPEERS}</expression>
-                            <name>{$NMPOLKANODEID} peers &lt;= {$NMPOLKATHRSHLDPEERS} : n={ITEM.VALUE}</name>
+                            <name>{$NMPOLKANODEID} : peers &lt;= {$NMPOLKATHRSHLDPEERS} : n={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -175,7 +198,7 @@ before heartbeat hight waiting, after either ok (can also be from authored block
                     <value_type>CHAR</value_type>
                     <description>scriptstarted | error | catchingup | synced&#13;
 &#13;
-error can have various causes, typically the gaiad process is down.</description>
+error can have various causes, typically the polkadot process is down.</description>
                     <applications>
                         <application>
                             <name>Polkadot</name>
@@ -184,25 +207,25 @@ error can have various causes, typically the gaiad process is down.</description
                     <triggers>
                         <trigger>
                             <expression>{nodata({$NMPOLKANODATA})}=1</expression>
-                            <name>{$NMPOLKANODEID} no log data : T &gt; {$NMPOLKANODATA}</name>
+                            <name>{$NMPOLKANODEID} : no log data : T &gt; {$NMPOLKANODATA}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
                             <expression>{iregexp(catchingup,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} status : catchingup</name>
+                            <name>{$NMPOLKANODEID} : status : catchingup</name>
                             <priority>INFO</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
                             <expression>{iregexp(error,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} status : error</name>
+                            <name>{$NMPOLKANODEID} : status : error</name>
                             <priority>HIGH</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
                             <expression>{iregexp(scriptstarted,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} status : script started</name>
+                            <name>{$NMPOLKANODEID} : status : script started</name>
                             <priority>INFO</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -210,6 +233,11 @@ error can have various causes, typically the gaiad process is down.</description
                 </item>
             </items>
             <macros>
+                <macro>
+                    <macro>{$NMPOLKABEHIND}</macro>
+                    <value>2</value>
+                    <description>difference between highest and current block height</description>
+                </macro>
                 <macro>
                     <macro>{$NMPOLKAELAPSED}</macro>
                     <value>180</value>
@@ -231,14 +259,165 @@ error can have various causes, typically the gaiad process is down.</description
                 </macro>
                 <macro>
                     <macro>{$NMPOLKATHRSHLDPEERS}</macro>
-                    <value>5</value>
+                    <value>10</value>
                     <description>Default threshold value for min. connected peers. In future versions of the nodemonitor script we intend to derive a percentage figure from node configuration data.</description>
                 </macro>
                 <macro>
                     <macro>{$NMPOLKAUPDATEINTERVAL}</macro>
-                    <value>1</value>
+                    <value>1s</value>
                 </macro>
             </macros>
+            <screens>
+                <screen>
+                    <name>nmon metrics</name>
+                    <hsize>1</hsize>
+                    <vsize>4</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>nmon authoredBlocks</name>
+                                <host>Template App Polkadot</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>nmon peers</name>
+                                <host>Template App Polkadot</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>nmon elapsed</name>
+                                <host>Template App Polkadot</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>nmon behind</name>
+                                <host>Template App Polkadot</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+            </screens>
         </template>
     </templates>
+    <graphs>
+        <graph>
+            <name>nmon authoredBlocks</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Polkadot</host>
+                        <key>logrt[{$NMPOLKALOGFILE},&quot;authoredBlocks=([0-9\.]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>nmon behind</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Polkadot</host>
+                        <key>logrt[{$NMPOLKALOGFILE},&quot;behind=([0-9\.]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>nmon elapsed</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Polkadot</host>
+                        <key>logrt[{$NMPOLKALOGFILE},&quot;elapsed=([0-9\.]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>nmon peers</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template App Polkadot</host>
+                        <key>logrt[{$NMPOLKALOGFILE},&quot;peers=([0-9\.]*)&quot;,,,skip,\1,]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
 </zabbix_export>
