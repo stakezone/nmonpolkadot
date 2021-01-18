@@ -188,6 +188,6 @@ while true; do
 
    logentry="$(sed 's/[^ ]*[\=]/'\\${color}'&'\\${noColor}'/g' <<<$logentry)"
    echo -e $logentry
-   echo -e "${colorD}sleep ${leep1}${noColor}"
+   echo -e "${colorD}sleep ${sleep1}${noColor}"
    sleep $sleep1
 done
