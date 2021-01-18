@@ -11,7 +11,7 @@
 
 #####    CONFIG    ##################################################################################################
 validatoraddress=""   # if left empty no validator checks are performed
-socket="default"      # websocket for js-api, either 'default' or insert like 'ws://127.0.0.1:9944'
+socket="default"      # websocket for js-api, either 'default' or like 'ws://127.0.0.1:9944'
 cli="polkadot-js-api" # js-api command
 nodeip="auto"         # nodeip of the node for verifying heartbeat message, set to 'auto' autodiscovered for local ip,'off' for no checks
 heartbeatoffset="8"   # the block interval following the expected heartbeat height after that a heartbeat must be received
@@ -55,7 +55,17 @@ echo "listen addresses: ${localListenAddresses}"
 echo "local ip: ${myip}"
 echo "chain id: ${chainid}"
 #echo "next keys: ${nextKeys}"
+
+epochDuration=$($cli consts.babe.epochDuration | jq -r '.epochDuration')
+expectedBlockTime=$($cli consts.babe.expectedBlockTime | jq -r '.expectedBlockTime')
+expectedBlockTime=$(expr $(sed 's/,//g' <<<$expectedBlockTime) / 1000)
+sessionsPerEra=$($cli consts.staking.sessionsPerEra | jq -r '.sessionsPerEra')
+
+echo "epoch duration: ${epochDuration}"
+echo "sessions per era: ${sessionsPerEra}"
+echo "expected block time: ${expectedBlockTime}"
 echo ""
+
 nloglines=$(wc -l <$logfile)
 if [ $nloglines -gt $logsize ]; then sed -i "1,$(expr $nloglines - $logsize)d" $logfile; fi # the log file is trimmed for logsize
 
@@ -92,20 +102,21 @@ while true; do
       if [ -n "$validatoraddress" ]; then
          sessionIndex=$($cli query.session.currentIndex | jq -r '.currentIndex')
          sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
-         #currentEra=$($cli query.staking.currentEra | jq -r '.currentEra')
-         #currentEra=$(sed 's/,//g' <<<$currentEra)
-         #currentEra=$($cli query.staking.currentEra | jq -r '.currentEra')
-         #currentEra=$(sed 's/,//g' <<<$currentEra)
-         #erasStartSessionIndex=$($cli query.staking.erasStartSessionIndex $currentEra | jq -r '.erasStartSessionIndex')
-         #erasStartSessionIndex=$(sed 's/,//g' <<<$erasStartSessionIndex)
-         #sessionIndex_=$sessionIndex
-         #pctSessionElapsed=$(echo "scale=2 ; 100 * ($highestBlock - ($sessionIndex * 1200)) / 1200" | bc)
+         activeEra=$($cli query.staking.activeEra | jq -r '.activeEra')
+         currentEra=$(jq -r '.index' <<<$activeEra)
+         currentEra=$(sed 's/,//g' <<<$currentEra)
+         startEra=$(jq -r '.start' <<<$activeEra)
+         startEra=$(sed 's/,//g' <<<$startEra)
+         startEra=$(echo "scale=0 ; $startEra / 1000" | bc)
+         pctEraElapsed=$(echo "scale=2 ; 100 * ($(date +%s) - $startEra) / 21600" | bc)
+         pctSessionElapsed=$(echo "scale=2 ; 100 * ($(date +%s) - $startEra) / 3600" | bc)
+         pctSessionElapsed=$(echo "scale=0 ; $pctSessionElapsed % 100" | bc)
          #keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$(polkadot-js-api query.imOnline.keys | jq -r 'map({key: .[]})'))
          keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$($cli query.session.validators | jq -r 'map({key: .[]})'))
          validatorInKeys=$(grep -c $validatoraddress <<<$keys)
          if [ "$validatorInKeys" == 0 ]; then
             isValidator="no"
-            logentry="session=$sessionIndex isValidator=$isValidator"
+            logentry="session=$sessionIndex isValidator=$isValidator pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
          else
             isValidator="yes"
             validatorKey=$(jq -r '.[] | select(.key == '\"$validatoraddress\"')' <<<$keys)
@@ -134,7 +145,7 @@ while true; do
             else
                heartbeat="waiting"
             fi
-            logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat"
+            logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
          fi
       fi
       logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind peers=$peers $logentry"
@@ -171,7 +182,7 @@ while true; do
    esac
    case $heartbeat in
    missing | missing_ip)
-      color=$colorE
+      color=$colorW
       ;;
    esac
 
