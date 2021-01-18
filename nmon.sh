@@ -63,7 +63,7 @@ sessionsPerEra=$($cli consts.staking.sessionsPerEra | jq -r '.sessionsPerEra')
 
 echo "epoch duration: ${epochDuration}"
 echo "sessions per era: ${sessionsPerEra}"
-echo "expected block time: ${expectedBlockTime}"
+echo "expected block time: ${expectedBlockTime}s"
 echo ""
 
 nloglines=$(wc -l <$logfile)
@@ -108,8 +108,8 @@ while true; do
          startEra=$(jq -r '.start' <<<$activeEra)
          startEra=$(sed 's/,//g' <<<$startEra)
          startEra=$(echo "scale=0 ; $startEra / 1000" | bc)
-         pctEraElapsed=$(echo "scale=2 ; 100 * ($(date +%s) - $startEra) / 21600" | bc)
-         pctSessionElapsed=$(echo "scale=2 ; 100 * ($(date +%s) - $startEra) / 3600" | bc)
+         pctEraElapsed=$(echo "scale=2 ; 100 * ($(date +%s) - $startEra) / ($epochDuration * $expectedBlockTime * $sessionsPerEra)" | bc)
+         pctSessionElapsed=$(echo "scale=2 ; 100 * ($(date +%s) - $startEra) / ($epochDuration * $expectedBlockTime)" | bc)
          pctSessionElapsed=$(echo "scale=0 ; $pctSessionElapsed % 100" | bc)
          #keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$(polkadot-js-api query.imOnline.keys | jq -r 'map({key: .[]})'))
          keys=$(jq -r 'to_entries | map_values(.value + { index: .key })' <<<$($cli query.session.validators | jq -r 'map({key: .[]})'))
