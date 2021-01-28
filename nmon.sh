@@ -2,31 +2,31 @@
 
 #set -x
 
-#####    sudo apt -y install jq bc
-#####    sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates && curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
-#####    sudo apt update && sudo apt -y install nodejs
-#####    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-#####    sudo apt update && sudo apt install yarn
-#####    sudo yarn global add @polkadot/api-cli
+###    sudo apt -y install jq bc
+###    sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates && curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+###    sudo apt update && sudo apt -y install nodejs
+###    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+###    sudo apt update && sudo apt install yarn
+###    sudo yarn global add @polkadot/api-cli
 
-#####    CONFIG    ##################################################################################################
+###    CONFIG    ##################################################################################################
 validatoraddress=""   # if left empty no validator checks are performed
 socket="default"      # websocket for js-api, either 'default' or like 'ws://127.0.0.1:9944'
 cli="polkadot-js-api" # js-api command
-nodeip="auto"         # nodeip of the node for verifying heartbeat message, set to 'auto' autodiscovered for local ip,'off' for no checks
+nodeip="auto"         # nodeip of the node for verifying heartbeat message, can also be 'auto' for local ip,'off' for no checks
 heartbeatoffset="8"   # the block interval following the expected heartbeat height after that a heartbeat must be received
 logname=""            # a custom log file name can be chosen, if left empty default is nmon-<username>.log
 logpath="$(pwd)"      # the directory where the log file is stored, for customization insert path like: /my/path
-logsize=200           # the max number of lines after that the log will be trimmed to reduce its size
+logsize=200           # the max number of lines after that the log gets truncated to reduce its size
 sleep1=30s            # polls every sleep1 sec
 colorI='\033[0;32m'   # black 30, red 31, green 32, yellow 33, blue 34, magenta 35, cyan 36, white 37
 colorD='\033[0;90m'   # for light color 9 instead of 3
 colorE='\033[0;31m'   #
 colorW='\033[0;33m'   #
 noColor='\033[0m'     # no color
-#####  END CONFIG  ##################################################################################################
+###  END CONFIG  ##################################################################################################
 
-cli="timeout --kill-after=6 5 $cli" #using timeout for preventing deadlocks of the script
+cli="timeout --kill-after=6 5 $cli" # using timeout for preventing deadlocks of the script
 if [ "$socket" != "default" ]; then cli="$cli --ws $socket"; fi
 
 apiversion=$($cli --version)
@@ -38,7 +38,8 @@ fi
 if [ "$nodeip" == "auto" ]; then myip=$(curl -s4 checkip.amazonaws.com); fi
 
 chainid=$($cli rpc.system.chain | jq -r '.chain')
-specVersion=$($cli query.system.lastRuntimeUpgrade | jq -r '.lastRuntimeUpgrade.specVersion')
+#specVersion=$($cli query.system.lastRuntimeUpgrade | jq -r '.lastRuntimeUpgrade.specVersion')
+version=$($cli rpc.system.version | jq -r '.version')
 localListenAddresses=$($cli rpc.system.localListenAddresses | jq -r '.localListenAddresses | @tsv')
 #nextKeys=$($cli query.session.nextKeys $validatoraddress | jq -r '.nextKeys | @tsv' )
 
@@ -48,7 +49,8 @@ touch $logfile
 
 echo "log file: ${logfile}"
 echo "js-api version: ${apiversion}"
-echo "runtime version: ${specVersion}"
+#echo "runtime version: ${specVersion}"
+echo "implementation: ${version}"
 echo "websocket: ${socket}"
 echo "validator address: ${validatoraddress}"
 echo "listen addresses: ${localListenAddresses}"
@@ -98,6 +100,11 @@ while true; do
       highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
       highestBlock=$(sed 's/,//g' <<<$highestBlock)
       behind=$(expr $highestBlock - $height)
+      finalizedHead=$($cli rpc.chain.getFinalizedHead | jq -r '.getFinalizedHead')
+      finalized=$($cli rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
+      finalized=$(jq -r '.block.header.number' <<<$finalized)
+      finalized=$(sed 's/,//g' <<<$finalized)
+      devFinalized=$(expr $highestBlock - $finalized)
       now=$(date --rfc-3339=seconds)
       elapsed=$(expr $(date +%s -d "$now") - $heightfromnow)
       if [ -n "$validatoraddress" ]; then
@@ -138,7 +145,7 @@ while true; do
                fi
                if [ "$nodeip" != "off" ]; then
                   test=$(grep -c $myip <<<$receivedHeartbeats)
-                  if [ "$test" == "0" ]; then heartbeat=missing_ip; fi
+                  if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
                fi
                if [ "$authoredBlocks" -gt "0" ]; then
                   heartbeat=ok
@@ -149,7 +156,7 @@ while true; do
             logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
          fi
       fi
-      logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind peers=$peers $logentry"
+      logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind devFinalized=$devFinalized peers=$peers $logentry"
       echo "$logentry" >>$logfile
    else
       now=$(date --rfc-3339=seconds)
@@ -175,14 +182,14 @@ while true; do
       color=$noColor
       ;;
    esac
-   if [ $behind -gt 0 ]; then lagging=yes; else lagging=no; fi
+   if [[ $behind -gt 0 ]] || [[ $devFinalized -gt 3 ]]; then lagging=yes; else lagging=no; fi
    case $lagging in
    yes)
       color=$colorW
       ;;
    esac
    case $heartbeat in
-   missing | missing_ip)
+   missing | ipmissing)
       color=$colorW
       ;;
    esac

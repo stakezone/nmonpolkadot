@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-01-18T10:10:45Z</date>
+    <date>2021-01-28T05:23:06Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -51,8 +51,50 @@
                     </applications>
                     <triggers>
                         <trigger>
+                            <expression>{avg(#10)}&gt;0.2 and {avg(#10)}&lt;0.5</expression>
+                            <name>{$NMPOLKANODEID} : behind 20-50% above 0 : n={ITEM.VALUE}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;=0.5</expression>
+                            <name>{$NMPOLKANODEID} : behind &gt;50% above 0 : n={ITEM.VALUE}</name>
+                            <priority>AVERAGE</priority>
+                        </trigger>
+                        <trigger>
                             <expression>{last()}&gt;={$NMPOLKABEHIND}</expression>
                             <name>{$NMPOLKANODEID} : behind &gt;= {$NMPOLKABEHIND} : n={ITEM.VALUE}</name>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>nmon devFinalized</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[{$NMPOLKALOGFILE},&quot;devFinalized=([0-9\.]*)&quot;,,,skip,\1,]</key>
+                    <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
+                    <history>5d</history>
+                    <trends>14d</trends>
+                    <description>difference between highest and last finalized block</description>
+                    <applications>
+                        <application>
+                            <name>Polkadot</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;3.2 and {avg(#10)}&lt;3.5</expression>
+                            <name>{$NMPOLKANODEID} : devFinalized 20-50% above 0 : n={ITEM.VALUE}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;=3.5</expression>
+                            <name>{$NMPOLKANODEID} : devFinalized &gt;50% above 0 : n={ITEM.VALUE}</name>
+                            <priority>AVERAGE</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&gt;={$NMPOLKAFINALIZED}</expression>
+                            <name>{$NMPOLKANODEID} : devFinalized &gt;= {$NMPOLKAFINALIZED} : n={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -100,14 +142,14 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     </applications>
                     <triggers>
                         <trigger>
-                            <expression>{iregexp(missing,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} : heartbeat : missing</name>
+                            <expression>{iregexp(ipmissing,#1)}=1</expression>
+                            <name>{$NMPOLKANODEID} : heartbeat : ipmissing</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
-                            <expression>{iregexp(missing_ip,#1)}=1</expression>
-                            <name>{$NMPOLKANODEID} : heartbeat : missing_ip</name>
+                            <expression>{iregexp(missing,#1)}=1</expression>
+                            <name>{$NMPOLKANODEID} : heartbeat : missing</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
@@ -235,13 +277,18 @@ error can have various causes, typically the polkadot process is down.</descript
             <macros>
                 <macro>
                     <macro>{$NMPOLKABEHIND}</macro>
-                    <value>2</value>
+                    <value>4</value>
                     <description>difference between highest and current block height</description>
                 </macro>
                 <macro>
                     <macro>{$NMPOLKAELAPSED}</macro>
-                    <value>180</value>
+                    <value>120</value>
                     <description>Time in seconds from the blockheight in the logfile that triggers a warning (chain halt detection).</description>
+                </macro>
+                <macro>
+                    <macro>{$NMPOLKAFINALIZED}</macro>
+                    <value>6</value>
+                    <description>difference between highest and last finalized block height</description>
                 </macro>
                 <macro>
                     <macro>{$NMPOLKALOGFILE}</macro>
@@ -260,7 +307,7 @@ error can have various causes, typically the polkadot process is down.</descript
                 <macro>
                     <macro>{$NMPOLKATHRSHLDPEERS}</macro>
                     <value>10</value>
-                    <description>Default threshold value for min. connected peers. In future versions of the nodemonitor script we intend to derive a percentage figure from node configuration data.</description>
+                    <description>Default threshold value for min. connected peers.</description>
                 </macro>
                 <macro>
                     <macro>{$NMPOLKAUPDATEINTERVAL}</macro>
@@ -421,3 +468,4 @@ error can have various causes, typically the polkadot process is down.</descript
         </graph>
     </graphs>
 </zabbix_export>
+
