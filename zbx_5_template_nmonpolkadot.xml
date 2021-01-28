@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-01-28T15:40:21Z</date>
+    <date>2021-01-28T18:32:10Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -51,20 +51,20 @@
                     </applications>
                     <triggers>
                         <trigger>
-                            <expression>{avg(#10)}&gt;0.2 and {avg(#10)}&lt;0.5</expression>
-                            <name>{$NMPOLKANODEID} : behind 20-50% above 0 : last={ITEM.VALUE}</name>
-                            <priority>INFO</priority>
-                        </trigger>
-                        <trigger>
-                            <expression>{avg(#10)}&gt;=0.5</expression>
-                            <name>{$NMPOLKANODEID} : behind &gt;50% above 0 : last={ITEM.VALUE}</name>
-                            <priority>AVERAGE</priority>
-                        </trigger>
-                        <trigger>
                             <expression>{last()}&gt;={$NMPOLKABEHIND}</expression>
                             <name>{$NMPOLKANODEID} : behind &gt;= {$NMPOLKABEHIND} : last={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;0.2 and {avg(#10)}&lt;0.5</expression>
+                            <name>{$NMPOLKANODEID} : behind avg 20-50% above expected : last={ITEM.VALUE}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;=0.5</expression>
+                            <name>{$NMPOLKANODEID} : behind avg &gt;=50% above expected : last={ITEM.VALUE}</name>
+                            <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
                 </item>
@@ -107,20 +107,20 @@ after heartbeat hight for session either ok, missing or missing_ip (ip does not 
                     </applications>
                     <triggers>
                         <trigger>
-                            <expression>{avg(#10)}&gt;3.2 and {avg(#10)}&lt;3.5</expression>
-                            <name>{$NMPOLKANODEID} : finalization 20-50% above expected : last={ITEM.VALUE}</name>
-                            <priority>INFO</priority>
-                        </trigger>
-                        <trigger>
-                            <expression>{avg(#10)}&gt;=3.5</expression>
-                            <name>{$NMPOLKANODEID} : finalization &gt;=50% above expected : last={ITEM.VALUE}</name>
-                            <priority>AVERAGE</priority>
-                        </trigger>
-                        <trigger>
                             <expression>{last()}&gt;={$NMPOLKAFINALIZED}</expression>
                             <name>{$NMPOLKANODEID} : finalization &gt;= {$NMPOLKAFINALIZED} : last={ITEM.VALUE}</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;3.2 and {avg(#10)}&lt;3.5</expression>
+                            <name>{$NMPOLKANODEID} : finalization avg 20-50% above expected : last={ITEM.VALUE}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#10)}&gt;=3.5</expression>
+                            <name>{$NMPOLKANODEID} : finalization avg &gt;=50% above expected : last={ITEM.VALUE}</name>
+                            <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
                 </item>
@@ -503,4 +503,3 @@ error can have various causes, typically the polkadot process is down.</descript
         </graph>
     </graphs>
 </zabbix_export>
-
