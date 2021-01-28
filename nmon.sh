@@ -104,7 +104,7 @@ while true; do
       finalized=$($cli rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
       finalized=$(jq -r '.block.header.number' <<<$finalized)
       finalized=$(sed 's/,//g' <<<$finalized)
-      devFinalized=$(expr $highestBlock - $finalized)
+      finalization=$(expr $highestBlock - $finalized)
       now=$(date --rfc-3339=seconds)
       elapsed=$(expr $(date +%s -d "$now") - $heightfromnow)
       if [ -n "$validatoraddress" ]; then
@@ -156,7 +156,7 @@ while true; do
             logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
          fi
       fi
-      logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind devFinalized=$devFinalized peers=$peers $logentry"
+      logentry="[$now] status=$status height=$height elapsed=$elapsed behind=$behind finalization=$finalization peers=$peers $logentry"
       echo "$logentry" >>$logfile
    else
       now=$(date --rfc-3339=seconds)
@@ -182,7 +182,7 @@ while true; do
       color=$noColor
       ;;
    esac
-   if [[ $behind -gt 0 ]] || [[ $devFinalized -gt 3 ]]; then lagging=yes; else lagging=no; fi
+   if [[ $behind -gt 0 ]] || [[ $finalization -gt 3 ]]; then lagging=yes; else lagging=no; fi
    case $lagging in
    yes)
       color=$colorW

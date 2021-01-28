@@ -1,6 +1,6 @@
 # nmonpolkadot
 
-Please update the template when using the newest version of the script.
+breaking changes, please update the template when using the newest version of the script.
 
 A complete log file based Polkadot validator uptime monitoring solution for Zabbix. It consists of the shell script nmon.sh for generating log files on the host and the template zbx_5_template_nmonpolkadot.xml for a Zabbix 5.x server. Also useful for other monitoring platforms (with log exporter) and as a tool.
 
@@ -9,13 +9,13 @@ A complete log file based Polkadot validator uptime monitoring solution for Zabb
 nmon.sh generates human-readable logs that look like:
 
 `
-[2021-01-18 07:58:54+00:00] status=synced height=5822773 elapsed=18 behind=1 devFinalized=3 peers=58 session=9998 isValidator=yes authoredBlocks=1 heartbeat=waiting pctSessionElapsed=51.77 era=1784 pctEraElapsed=41.96`
+[2021-01-18 07:58:54+00:00] status=synced height=5822773 elapsed=18 behind=1 finalization=3 peers=58 session=9998 isValidator=yes authoredBlocks=1 heartbeat=waiting pctSessionElapsed=51.77 era=1784 pctEraElapsed=41.96`
  
 `
-[2021-01-18 07:59:39+00:00] status=synced height=5822777 elapsed=9 behind=0 devFinalized=3 peers=59 session=9998 isValidator=yes authoredBlocks=1 heartbeat=waiting pctSessionElapsed=53.02 era=1784 pctEraElapsed=42.17`
+[2021-01-18 07:59:39+00:00] status=synced height=5822777 elapsed=9 behind=0 finalization=3 peers=59 session=9998 isValidator=yes authoredBlocks=1 heartbeat=waiting pctSessionElapsed=53.02 era=1784 pctEraElapsed=42.17`
  
 `
-[2021-01-18 08:00:24+00:00] status=synced height=5822784 elapsed=6 behind=0 devFinalized=3 peers=55 session=9998 isValidator=yes authoredBlocks=1 heartbeat=ok pctSessionElapsed=54.25 era=1784 pctEraElapsed=42.37`
+[2021-01-18 08:00:24+00:00] status=synced height=5822784 elapsed=6 behind=0 finalization=3 peers=55 session=9998 isValidator=yes authoredBlocks=1 heartbeat=ok pctSessionElapsed=54.25 era=1784 pctEraElapsed=42.37`
 
 The log line entries that are imported by the Zabbix server are:
 
@@ -23,7 +23,7 @@ The log line entries that are imported by the Zabbix server are:
 * **height** current height
 * **elapsed** time in seconds since current height (useful for latency or chain halt detection)
 * **behind** difference between highest and current height
-* **devFinalized** difference between highest and last finalized height
+* **finalization** difference between highest and last finalized height
 * **peers** number of peers
 * **session** the current session
 * **isValidator** (only if validator address is configured) can be {yes | no}
