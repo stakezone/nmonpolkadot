@@ -1,6 +1,6 @@
 # nmonpolkadot
 
-Please update template when using the newest version of the script.
+Please update the template when using the newest version of the script.
 
 A complete log file based Polkadot validator uptime monitoring solution for Zabbix. It consists of the shell script nmon.sh for generating log files on the host and the template zbx_5_template_nmonpolkadot.xml for a Zabbix 5.x server. Also useful for other monitoring platforms (with log exporter) and as a tool.
 
