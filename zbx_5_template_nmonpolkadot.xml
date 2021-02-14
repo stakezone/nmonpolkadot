@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-01-28T18:32:10Z</date>
+    <date>2021-02-14T00:20:28Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -28,8 +28,8 @@
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;authoredBlocks=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <applications>
                         <application>
                             <name>Polkadot</name>
@@ -41,8 +41,8 @@
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;behind=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <description>difference between highest and current block</description>
                     <applications>
                         <application>
@@ -73,8 +73,8 @@
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;elapsed=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <description>ok | waiting | missing | missing_ip&#13;
 &#13;
 after heartbeat hight for session either ok, missing or missing_ip (ip does not correspond with local wlan address of node)</description>
@@ -97,8 +97,8 @@ after heartbeat hight for session either ok, missing or missing_ip (ip does not 
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;finalization=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <description>difference between highest and last finalized block</description>
                     <applications>
                         <application>
@@ -129,7 +129,7 @@ after heartbeat hight for session either ok, missing or missing_ip (ip does not 
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;heartbeat=(\w*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
+                    <history>30d</history>
                     <trends>0</trends>
                     <value_type>CHAR</value_type>
                     <description>waiting | ok | missing | missing_ip&#13;
@@ -143,12 +143,16 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     <triggers>
                         <trigger>
                             <expression>{iregexp(ipmissing,#1)}=1</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{iregexp(ok,#1)}=1</recovery_expression>
                             <name>{$NMPOLKANODEID} : heartbeat : ipmissing</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
                             <expression>{iregexp(missing,#1)}=1</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{iregexp(ok,#1)}=1</recovery_expression>
                             <name>{$NMPOLKANODEID} : heartbeat : missing</name>
                             <priority>AVERAGE</priority>
                             <manual_close>YES</manual_close>
@@ -160,8 +164,8 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;height=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <applications>
                         <application>
                             <name>Polkadot</name>
@@ -173,7 +177,7 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;isValidator=(\w*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
+                    <history>30d</history>
                     <trends>0</trends>
                     <value_type>CHAR</value_type>
                     <description>yes | no</description>
@@ -196,8 +200,8 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;peers=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <applications>
                         <application>
                             <name>Polkadot</name>
@@ -222,8 +226,8 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;session=([0-9\.]*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>5d</history>
-                    <trends>14d</trends>
+                    <history>30d</history>
+                    <trends>60d</trends>
                     <applications>
                         <application>
                             <name>Polkadot</name>
@@ -235,7 +239,7 @@ before heartbeat-hight waiting, after heartbeat-hight either ok (can also be fro
                     <type>ZABBIX_ACTIVE</type>
                     <key>logrt[{$NMPOLKALOGFILE},&quot;status=(\w*)&quot;,,,skip,\1,]</key>
                     <delay>{$NMPOLKAUPDATEINTERVAL}</delay>
-                    <history>15d</history>
+                    <history>130d</history>
                     <trends>0</trends>
                     <value_type>CHAR</value_type>
                     <description>scriptstarted | error | catchingup | synced&#13;
