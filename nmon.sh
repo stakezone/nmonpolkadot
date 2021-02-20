@@ -61,7 +61,7 @@ echo "implementation: ${version}"
 echo "websocket: ${SOCKET}"
 echo "validator address: ${VALIDATORADDRESS}"
 echo "listen addresses: ${localListenAddresses}"
-echo "local ip: ${myip}"
+echo "configured ip: ${myip}"
 echo "chain id: ${chainid}"
 #echo "next keys: ${nextKeys}"
 
