@@ -36,6 +36,12 @@ A Zabbix server is required that connects to the host running the Polkadot valid
 
 Testing heartbeat alarm: In the config section of the script set `heartbeatoffset` to a high negative value like -1000, then a false alarm should get triggered before heartbeat-after-height. 
 
+### New
+
+More options for logfile management (option 1 or 2 recommended use with Zabbix)
+
 ### Issues
 
 The js-api requests are slow, some differentials might be slightly inaccurate.
+
+If suppression of error messages is preferred, start like `./nmon.sh 2> /dev/null`.
