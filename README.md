@@ -1,7 +1,5 @@
 # nmonpolkadot
 
-Breaking changes, please update the template when using the newest version of the script.
-
 A complete log file based Polkadot validator uptime monitoring solution for Zabbix. It consists of the shell script nmon.sh for generating log files on the host and the template zbx_5_template_nmonpolkadot.xml for a Zabbix 5.x server. Also useful for other monitoring platforms (with log exporter) and as a tool.
 
 ### Concept
@@ -28,7 +26,7 @@ The log line entries that are imported by the Zabbix server are:
 * **session** the current session
 * **isValidator** (only if validator address is configured) can be {yes | no}
 * **authoredBlocks** (only if validator address is configured) authored blocks from the configured validator address for the current session
-* **heartbeat** (only if validator address is configured) can be {waiting | ok | missing | ipmissing} 'waiting' if heartbeat-after-height is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-height, 'missing' heartbeat was not sent, 'ipmissing' heartbeat message does not contain the ip of the local node (useful for confirming local node)
+* **heartbeat** (only if validator address is configured) can be {waiting | ok | missing | ipmissing} 'waiting' if heartbeat-after-height is not yet reached for current session, 'ok' if either a block was authored or a heartbeat sent upon heartbeat-after-height, 'missing' heartbeat was not sent, 'ipmissing' heartbeat message does not contain the configured ip (useful for confirming local node)
 
 ### Installation
 
