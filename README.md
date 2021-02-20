@@ -38,7 +38,7 @@ Testing heartbeat alarm: In the config section of the script set `heartbeatoffse
 
 ### New
 
-More options for logfile management (option 1 or 2 recommended use with Zabbix)
+More options for logfile management (option 1 or 2 recommended for Zabbix)
 
 ### Issues
 
