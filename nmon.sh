@@ -33,16 +33,18 @@ colorW='\033[0;33m'   #
 noColor='\033[0m'     # no color
 ###  END CONFIG  ##################################################################################################
 
-CLI="timeout --kill-after=6 5 $CLI" # using timeout for preventing deadlocks of the script
+
+CLI="timeout -k 6 5 $CLI" # using timeout for preventing deadlocks of the script
+
 if [ "$SOCKET" != "default" ]; then CLI="$CLI --ws $SOCKET"; fi
 
 apiversion=$($CLI --version)
-if [ -z $apiversion ]; then
-    echo "please install the Polkadot JS-API"
-    exit 1
-fi
+if [ -z "$apiversion" ]; then echo "please install the Polkadot JS-API"; exit 1; fi
 
-if [ "$IP" == "auto" ]; then myip=$(curl -s4 checkip.amazonaws.com); fi
+if [ "$IP" == "auto" ]; then
+   myip=$(curl -s4 checkip.amazonaws.com)
+   if [ -z "$myip" ]; then echo "auto discovery of ip failed, try again or configure manually..."; exit 1; fi
+fi
 
 chainid=$($CLI rpc.system.chain | jq -r '.chain')
 #specVersion=$($CLI query.system.lastRuntimeUpgrade | jq -r '.lastRuntimeUpgrade.specVersion')
@@ -50,7 +52,7 @@ version=$($CLI rpc.system.version | jq -r '.version')
 localListenAddresses=$($CLI rpc.system.localListenAddresses | jq -r '.localListenAddresses | @tsv')
 #nextKeys=$($CLI query.session.nextKeys $VALIDATORADDRESS | jq -r '.nextKeys | @tsv' )
 
-if [ -z $LOGNAME ]; then LOGNAME="nmon-${USER}.log"; fi
+if [ -z "$LOGNAME" ]; then LOGNAME="nmon-${USER}.log"; fi
 logfile="${LOGPATH}/${LOGNAME}"
 touch $logfile
 
@@ -68,7 +70,7 @@ echo "chain id: ${chainid}"
 epochDuration=$($CLI consts.babe.epochDuration | jq -r '.epochDuration')
 epochDuration=$(sed 's/,//g' <<<$epochDuration)
 expectedBlockTime=$($CLI consts.babe.expectedBlockTime | jq -r '.expectedBlockTime')
-expectedBlockTime=$(expr $(sed 's/,//g' <<<$expectedBlockTime) / 1000)
+expectedBlockTime=$(( $(sed 's/,//g' <<<$expectedBlockTime) / 1000))
 sessionsPerEra=$($CLI consts.staking.sessionsPerEra | jq -r '.sessionsPerEra')
 
 echo "epoch duration: ${epochDuration}"
@@ -77,7 +79,7 @@ echo "expected block time: ${expectedBlockTime}s"
 echo ""
 
 nloglines=$(wc -l <$logfile)
-if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(expr $nloglines - $LOGSIZE)d" $logfile; fi # the log file is trimmed for logsize
+if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(( $nloglines - $LOGSIZE))d" $logfile; fi # the log file is trimmed for logsize
 
 date=$(date --rfc-3339=seconds)
 echo "[${date}] status=scriptstarted chainid=$chainid" >>$logfile
@@ -95,25 +97,26 @@ while true; do
         status="error"
     fi
     if [ "$status" != "error" ]; then
-        heightfromnow=$($CLI query.timestamp.now | jq -r '.now')
+        elapsed=$($CLI query.timestamp.now | jq -r '.now')
         #heightHash=$($CLI rpc.chain.getBlockHash $height | jq -r '.getBlockHash')
         #getBlock=$($CLI rpc.chain.getBlock $heightHash | jq -r '.getBlock')
-        #heightfromnow=$(jq -r '.block.extrinsics[0].method.args[0]' <<<$getBlock)
-        heightfromnow=$(sed 's/,//g' <<<$heightfromnow)
-        heightfromnow=$(echo "scale=0 ; $heightfromnow / 1000" | bc)
-        syncState=$($CLI rpc.system.syncState)
+        #elapsed=$(jq -r '.block.extrinsics[0].method.args[0]' <<<$getBlock)
+        elapsed=$(sed 's/,//g' <<<$elapsed)
+        elapsed=$(echo "scale=0 ; $elapsed / 1000" | bc)
+        heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to and before syncState call
+		syncState=$($CLI rpc.system.syncState)
         height=$(jq -r '.syncState.currentBlock' <<<$syncState)
         height=$(sed 's/,//g' <<<$height)
         highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
         highestBlock=$(sed 's/,//g' <<<$highestBlock)
-        behind=$(expr $highestBlock - $height)
+        behind=$(( $highestBlock - $height))
         finalizedHead=$($CLI rpc.chain.getFinalizedHead | jq -r '.getFinalizedHead')
         finalized=$($CLI rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
         finalized=$(jq -r '.block.header.number' <<<$finalized)
         finalized=$(sed 's/,//g' <<<$finalized)
-        finalization=$(expr $highestBlock - $finalized)
+        finalization=$(( $highestBlock - $finalized))
         now=$(date --rfc-3339=seconds)
-        elapsed=$(expr $(date +%s -d "$now") - $heightfromnow)
+        elapsed=$(( $(date +%s -d "$now") - $elapsed))
         if [ -n "$VALIDATORADDRESS" ]; then
             sessionIndex=$($CLI query.session.currentIndex | jq -r '.currentIndex')
             sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
@@ -137,12 +140,12 @@ while true; do
                 validatorKey=$(jq -r '.[] | select(.key == '\"$VALIDATORADDRESS\"')' <<<$keys)
                 validatorIndex=$(jq -r '.index' <<<$validatorKey)
                 authoredBlocks=$($CLI query.imOnline.authoredBlocks $sessionIndex $VALIDATORADDRESS | jq -r '.authoredBlocks')
-                heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter)
+                #heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter)
                 if [ -n "$heartbeatAfter_" ]; then
                     heartbeatAfter=$(jq -r '.heartbeatAfter' <<<$heartbeatAfter_)
                     heartbeatAfter=$(sed 's/,//g' <<<$heartbeatAfter)
                 fi
-                heartbeatDelta=$(expr $highestBlock - $heartbeatAfter)
+                heartbeatDelta=$(( $highestBlock - $heartbeatAfter))
                 if [ "$heartbeatDelta" -gt "$HEARTBEATOFFSET" ]; then
                     heartbeat=missing
                     receivedHeartbeats=$($CLI query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
@@ -217,6 +220,7 @@ while true; do
         color=$colorW
         ;;
     esac
+
     case $heartbeat in
     missing | ipmissing)
         color=$colorW
