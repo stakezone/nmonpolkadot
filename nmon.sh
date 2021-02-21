@@ -70,7 +70,7 @@ echo "chain id: ${chainid}"
 epochDuration=$($CLI consts.babe.epochDuration | jq -r '.epochDuration')
 epochDuration=$(sed 's/,//g' <<<$epochDuration)
 expectedBlockTime=$($CLI consts.babe.expectedBlockTime | jq -r '.expectedBlockTime')
-expectedBlockTime=$(( $(sed 's/,//g' <<<$expectedBlockTime) / 1000))
+expectedBlockTime=$(expr $(sed 's/,//g' <<<$expectedBlockTime) / 1000)
 sessionsPerEra=$($CLI consts.staking.sessionsPerEra | jq -r '.sessionsPerEra')
 
 echo "epoch duration: ${epochDuration}"
@@ -79,7 +79,7 @@ echo "expected block time: ${expectedBlockTime}s"
 echo ""
 
 nloglines=$(wc -l <$logfile)
-if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(( $nloglines - $LOGSIZE))d" $logfile; fi # the log file is trimmed for logsize
+if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(expr $nloglines - $LOGSIZE)d" $logfile; fi # the log file is trimmed for logsize
 
 date=$(date --rfc-3339=seconds)
 echo "[${date}] status=scriptstarted chainid=$chainid" >>$logfile
@@ -103,20 +103,20 @@ while true; do
         #elapsed=$(jq -r '.block.extrinsics[0].method.args[0]' <<<$getBlock)
         elapsed=$(sed 's/,//g' <<<$elapsed)
         elapsed=$(echo "scale=0 ; $elapsed / 1000" | bc)
+        syncState=$($CLI rpc.system.syncState)
         heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to and before syncState call
-		syncState=$($CLI rpc.system.syncState)
         height=$(jq -r '.syncState.currentBlock' <<<$syncState)
         height=$(sed 's/,//g' <<<$height)
         highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
         highestBlock=$(sed 's/,//g' <<<$highestBlock)
-        behind=$(( $highestBlock - $height))
+        behind=$(expr $highestBlock - $height)
         finalizedHead=$($CLI rpc.chain.getFinalizedHead | jq -r '.getFinalizedHead')
         finalized=$($CLI rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
         finalized=$(jq -r '.block.header.number' <<<$finalized)
         finalized=$(sed 's/,//g' <<<$finalized)
-        finalization=$(( $highestBlock - $finalized))
+        finalization=$(expr $highestBlock - $finalized)
         now=$(date --rfc-3339=seconds)
-        elapsed=$(( $(date +%s -d "$now") - $elapsed))
+        elapsed=$(expr $(date +%s -d "$now") - $elapsed)
         if [ -n "$VALIDATORADDRESS" ]; then
             sessionIndex=$($CLI query.session.currentIndex | jq -r '.currentIndex')
             sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
@@ -145,7 +145,7 @@ while true; do
                     heartbeatAfter=$(jq -r '.heartbeatAfter' <<<$heartbeatAfter_)
                     heartbeatAfter=$(sed 's/,//g' <<<$heartbeatAfter)
                 fi
-                heartbeatDelta=$(( $highestBlock - $heartbeatAfter))
+                heartbeatDelta=$(expr $highestBlock - $heartbeatAfter)
                 if [ "$heartbeatDelta" -gt "$HEARTBEATOFFSET" ]; then
                     heartbeat=missing
                     receivedHeartbeats=$($CLI query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
