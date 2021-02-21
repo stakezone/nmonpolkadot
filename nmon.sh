@@ -104,7 +104,7 @@ while true; do
         elapsed=$(sed 's/,//g' <<<$elapsed)
         elapsed=$(echo "scale=0 ; $elapsed / 1000" | bc)
         syncState=$($CLI rpc.system.syncState)
-        heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to and before syncState call
+        heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to syncState call
         height=$(jq -r '.syncState.currentBlock' <<<$syncState)
         height=$(sed 's/,//g' <<<$height)
         highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
