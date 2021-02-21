@@ -149,14 +149,16 @@ while true; do
                 if [ "$heartbeatDelta" -gt "$HEARTBEATOFFSET" ]; then
                     heartbeat=missing
                     receivedHeartbeats=$($CLI query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
+                    heartbeat=missing
+                    receivedHeartbeats=$($CLI query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
                     if [ "$receivedHeartbeats" != "null" ]; then
                         heartbeat=ok
                         receivedHeartbeats="$(echo $receivedHeartbeats | xxd -r -p | tr -d '\0')"
-                    fi
-                    if [ "$IP" != "off" ]; then
-                        test=$(grep -c $myip <<<$receivedHeartbeats)
-                        if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
-                    fi
+                       if [ "$IP" != "off" ]; then
+                           test=$(grep -c $myip <<<$receivedHeartbeats)
+                           if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
+                       fi
+			    	     fi
                     if [ "$authoredBlocks" -gt "0" ]; then
                         heartbeat=ok
                     fi
