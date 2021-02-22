@@ -149,8 +149,6 @@ while true; do
                 if [ "$heartbeatDelta" -gt "$HEARTBEATOFFSET" ]; then
                     heartbeat=missing
                     receivedHeartbeats=$($CLI query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
-                    heartbeat=missing
-                    receivedHeartbeats=$($CLI query.imOnline.receivedHeartbeats $sessionIndex $validatorIndex | jq -r '.receivedHeartbeats')
                     if [ "$receivedHeartbeats" != "null" ]; then
                         heartbeat=ok
                         receivedHeartbeats="$(echo $receivedHeartbeats | xxd -r -p | tr -d '\0')"
