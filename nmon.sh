@@ -167,7 +167,7 @@ while true; do
                 else
                     heartbeat="waiting"
                 fi
-                logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
+                logentry="isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
             fi
         fi
         variables="status=$status height=$height elapsed=$elapsed behind=$behind finalization=$finalization peers=$peers session=$sessionIndex $logentry"
