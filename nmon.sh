@@ -104,12 +104,12 @@ while true; do
         elapsed=$(sed 's/,//g' <<<$elapsed)
         elapsed=$(echo "scale=0 ; $elapsed / 1000" | bc)
         syncState=$($CLI rpc.system.syncState)
-        heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to syncState call
         height=$(jq -r '.syncState.currentBlock' <<<$syncState)
         height=$(sed 's/,//g' <<<$height)
         highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
         highestBlock=$(sed 's/,//g' <<<$highestBlock)
         behind=$(expr $highestBlock - $height)
+        heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to syncState call
         finalizedHead=$($CLI rpc.chain.getFinalizedHead | jq -r '.getFinalizedHead')
         finalized=$($CLI rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
         finalized=$(jq -r '.block.header.number' <<<$finalized)
@@ -158,7 +158,7 @@ while true; do
                            test=$(grep -c $myip <<<$receivedHeartbeats)
                            if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
                        fi
-			    	     fi
+		    fi
                     if [ "$authoredBlocks" -gt "0" ]; then
                         heartbeat=ok
                     fi
