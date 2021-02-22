@@ -44,8 +44,8 @@ if [ -z "$apiversion" ]; then
 fi
 
 if [ "$IP" == "auto" ]; then
-    myip=$(curl -s4 checkip.amazonaws.com)
-    if [ -z "$myip" ]; then
+    IP=$(curl -s4 checkip.amazonaws.com)
+    if [ -z "$IP" ]; then
         echo "auto discovery of ip failed, try again or configure manually..."
         exit 1
     fi
@@ -68,7 +68,7 @@ echo "implementation: ${version}"
 echo "websocket: ${SOCKET}"
 echo "validator address: ${VALIDATORADDRESS}"
 echo "listen addresses: ${localListenAddresses}"
-echo "configured ip: ${myip}"
+echo "configured ip: ${IP}"
 echo "chain id: ${chainid}"
 #echo "next keys: ${nextKeys}"
 
@@ -157,7 +157,7 @@ while true; do
                         heartbeat=ok
                         receivedHeartbeats="$(echo $receivedHeartbeats | xxd -r -p | tr -d '\0')"
                         if [ "$IP" != "off" ]; then
-                            test=$(grep -c $myip <<<$receivedHeartbeats)
+                            test=$(grep -c $IP <<<$receivedHeartbeats)
                             if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
                         fi
                     fi
