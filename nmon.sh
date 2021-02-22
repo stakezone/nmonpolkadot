@@ -33,17 +33,22 @@ colorW='\033[0;33m'   #
 noColor='\033[0m'     # no color
 ###  END CONFIG  ##################################################################################################
 
-
 CLI="timeout -k 6 5 $CLI" # using timeout for preventing deadlocks of the script
 
 if [ "$SOCKET" != "default" ]; then CLI="$CLI --ws $SOCKET"; fi
 
 apiversion=$($CLI --version)
-if [ -z "$apiversion" ]; then echo "please install the Polkadot JS-API"; exit 1; fi
+if [ -z "$apiversion" ]; then
+    echo "please install the Polkadot JS-API"
+    exit 1
+fi
 
 if [ "$IP" == "auto" ]; then
-   myip=$(curl -s4 checkip.amazonaws.com)
-   if [ -z "$myip" ]; then echo "auto discovery of ip failed, try again or configure manually..."; exit 1; fi
+    myip=$(curl -s4 checkip.amazonaws.com)
+    if [ -z "$myip" ]; then
+        echo "auto discovery of ip failed, try again or configure manually..."
+        exit 1
+    fi
 fi
 
 chainid=$($CLI rpc.system.chain | jq -r '.chain')
@@ -103,23 +108,22 @@ while true; do
         #elapsed=$(jq -r '.block.extrinsics[0].method.args[0]' <<<$getBlock)
         elapsed=$(sed 's/,//g' <<<$elapsed)
         elapsed=$(echo "scale=0 ; $elapsed / 1000" | bc)
+        sessionIndex=$($CLI query.session.currentIndex | jq -r '.currentIndex')
+        sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
+        finalizedHead=$($CLI rpc.chain.getFinalizedHead | jq -r '.getFinalizedHead')
+        finalized=$($CLI rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
+        finalized=$(jq -r '.block.header.number' <<<$finalized)
+        finalized=$(sed 's/,//g' <<<$finalized)
+        finalization=$(expr $highestBlock - $finalized)
         syncState=$($CLI rpc.system.syncState)
         height=$(jq -r '.syncState.currentBlock' <<<$syncState)
         height=$(sed 's/,//g' <<<$height)
         highestBlock=$(jq -r '.syncState.highestBlock' <<<$syncState)
         highestBlock=$(sed 's/,//g' <<<$highestBlock)
         behind=$(expr $highestBlock - $height)
-        heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter) # moved here for being close to syncState call
-        finalizedHead=$($CLI rpc.chain.getFinalizedHead | jq -r '.getFinalizedHead')
-        finalized=$($CLI rpc.chain.getBlock $finalizedHead | jq -r '.getBlock')
-        finalized=$(jq -r '.block.header.number' <<<$finalized)
-        finalized=$(sed 's/,//g' <<<$finalized)
-        finalization=$(expr $highestBlock - $finalized)
         now=$(date --rfc-3339=seconds)
         elapsed=$(expr $(date +%s -d "$now") - $elapsed)
         if [ -n "$VALIDATORADDRESS" ]; then
-            sessionIndex=$($CLI query.session.currentIndex | jq -r '.currentIndex')
-            sessionIndex=$(sed 's/,//g' <<<$sessionIndex)
             activeEra=$($CLI query.staking.activeEra | jq -r '.activeEra')
             currentEra=$(jq -r '.index' <<<$activeEra)
             currentEra=$(sed 's/,//g' <<<$currentEra)
@@ -134,13 +138,13 @@ while true; do
             validatorInKeys=$(grep -c $VALIDATORADDRESS <<<$keys)
             if [ "$validatorInKeys" == 0 ]; then
                 isValidator="no"
-                logentry="session=$sessionIndex isValidator=$isValidator pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
+                logentry="isValidator=$isValidator pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
             else
                 isValidator="yes"
                 validatorKey=$(jq -r '.[] | select(.key == '\"$VALIDATORADDRESS\"')' <<<$keys)
                 validatorIndex=$(jq -r '.index' <<<$validatorKey)
                 authoredBlocks=$($CLI query.imOnline.authoredBlocks $sessionIndex $VALIDATORADDRESS | jq -r '.authoredBlocks')
-                #heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter)
+                heartbeatAfter_=$($CLI query.imOnline.heartbeatAfter)
                 if [ -n "$heartbeatAfter_" ]; then
                     heartbeatAfter=$(jq -r '.heartbeatAfter' <<<$heartbeatAfter_)
                     heartbeatAfter=$(sed 's/,//g' <<<$heartbeatAfter)
@@ -152,11 +156,11 @@ while true; do
                     if [ "$receivedHeartbeats" != "null" ]; then
                         heartbeat=ok
                         receivedHeartbeats="$(echo $receivedHeartbeats | xxd -r -p | tr -d '\0')"
-                       if [ "$IP" != "off" ]; then
-                           test=$(grep -c $myip <<<$receivedHeartbeats)
-                           if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
-                       fi
-		    fi
+                        if [ "$IP" != "off" ]; then
+                            test=$(grep -c $myip <<<$receivedHeartbeats)
+                            if [ "$test" == "0" ]; then heartbeat=ipmissing; fi
+                        fi
+                    fi
                     if [ "$authoredBlocks" -gt "0" ]; then
                         heartbeat=ok
                     fi
@@ -166,7 +170,7 @@ while true; do
                 logentry="session=$sessionIndex isValidator=$isValidator authoredBlocks=$authoredBlocks heartbeat=$heartbeat pctSessionElapsed=$pctSessionElapsed era=$currentEra pctEraElapsed=$pctEraElapsed"
             fi
         fi
-        variables="status=$status height=$height elapsed=$elapsed behind=$behind finalization=$finalization peers=$peers $logentry"
+        variables="status=$status height=$height elapsed=$elapsed behind=$behind finalization=$finalization peers=$peers session=$sessionIndex $logentry"
     else
         now=$(date --rfc-3339=seconds)
         status="error"
